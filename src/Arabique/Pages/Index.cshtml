@@ -1,0 +1,83 @@
+﻿@page
+@model IndexModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arabique</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
+    <style>
+        html, body, #app {
+            height: 100%;
+        }
+
+        body {
+            margin: 0 15px;
+        }
+
+        #phrase {
+            font-size: 10vw;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="d-flex align-items-center">
+        <div v-if="phrase" class="d-flex flex-column w-100">
+            <div id="phrase" v-bind:data-answer="phrase.answer" class="mb-5 text-center">{{ phrase.question }}</div>
+            <button type="button" class="btn btn-dark" v-on:click="nextPhrase">Next</button>
+        </div>
+        <div v-else class="d-flex flex-column w-100">
+            <div class="text-center">DONE</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js" integrity="sha256-TaLceMwjWRqe4yhbqPOJH6V7UGt5AvvdNfpaIXJWbFU=" crossorigin="anonymous"></script>
+    <script>
+
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    index: 0,
+                    loading: false,
+                    completed: false,
+                    phrases: []
+                }
+            },
+            created() {
+                this.fetchData();
+            },
+            computed: {
+                phrase() {
+                    return this.phrases[this.index];
+                }
+            },
+            methods: {
+                fetchData() {
+
+                    let self = this;
+
+                    self.loading = true;
+                    
+                    fetch('/api/phrases/random')
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (json) {                     
+                            self.phrases = json;
+                            self.loading = false;
+                        });
+                },
+                nextPhrase() {
+                    if (this.index++ >= this.phrases.length) {
+                        this.completed = true;
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
